@@ -18,7 +18,7 @@ data "aws_ami" "myubuntuami" {
     owners = ["099720109477"]
     filter {
       name = "name"
-      values = ["ubuntu-pro-server/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-pro-server-20250819"]
+      values = ["ubuntu-minimal/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-minimal-20250625"]
     }
    
 }
@@ -33,4 +33,27 @@ resource "aws_instance" "myownec2" {
         Name = "myownterraformec2"
     }
 
+    
+}
+resource "null_resource" "mysomechanging" {
+    triggers = {
+        buid_id = "1.1"
+    }
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        host = aws_instance.myownec2.public_ip
+        private_key = file("~/.ssh/id_ed25519")
+
+    }
+    provisioner "remote-exec" {
+        inline = [
+            "sudo apt update -y",
+            "sudo apt install docker.io -y",
+            "sudo apt install nginx -y",
+            "sudo apt install openjdk-17-jdk -y"
+        ]
+      
+    }
+  
 }
